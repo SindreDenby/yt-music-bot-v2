@@ -1,11 +1,6 @@
 import discord
 import json
 import asyncio
-import os
-from mutagen.mp3 import MP3
-import requests
-import datetime
-import math
 import yt_downloader
 from discord.ext import commands, tasks
 
