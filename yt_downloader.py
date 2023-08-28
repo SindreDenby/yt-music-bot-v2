@@ -23,6 +23,20 @@ def get_url_title(url):
 def get_list_of_titles(url_list):
     return [get_url_title(i) for i in url_list]
 
+def is_valid_url(url):
+    """
+    Returns true if url is valid yt video
+    """
+    try:
+        yt = YouTube(url)
+
+        if yt.title == None: return False
+
+        return True
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+
 def download_youtube_audio(url, output_path="sounds"):
     try:
         # Create a YouTube object
@@ -30,7 +44,7 @@ def download_youtube_audio(url, output_path="sounds"):
 
         # Select the best stream with audio
         audio_stream = yt.streams.filter(only_audio=True, file_extension='mp4').first()
-        mp3_name = clean_file_name(f"{yt.title}.mp3") 
+        mp3_name = f"{clean_file_name(yt.title)}.mp3" 
 
         # Define the MP3 file path
         mp3_file = os.path.join(output_path, mp3_name)
@@ -40,15 +54,7 @@ def download_youtube_audio(url, output_path="sounds"):
             return mp3_file
 
         # Download the audio stream
-        audio_stream.download(output_path=output_path)
-
-        # Rename the downloaded file to have an .mp3 extension if it's not already in MP3 format
-        downloaded_file = os.path.join(output_path, audio_stream.default_filename)
-        if not downloaded_file.endswith(".mp3"):
-            mp3_file = os.path.splitext(downloaded_file)[0] + ".mp3"
-            os.rename(downloaded_file, mp3_file)
-        else:
-            mp3_file = downloaded_file
+        audio_stream.download(output_path=output_path, filename=mp3_name)
 
         print(f"Audio downloaded as: {mp3_file}")
         return mp3_file

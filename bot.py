@@ -61,11 +61,17 @@ async def play_audio(message: discord.Message, filename: str, channel = None, vo
     # await voice_client.disconnect()
 
 async def parse_YT(message):
+    url = message.content.split("-play ")[1]
+
+    if not yt_downloader.is_valid_url(url): 
+        await message.channel.send("URL is not valid YT video")
+        return
     
+
     if await check_audio_playing():
         client.voice_clients[0].stop()
     
-    url = message.content.split("-play ")[1]
+    
     await play_YT(url, message=message)
    
 
@@ -82,6 +88,10 @@ async def add_song_to_queue(message):
     global queue
 
     url = message.content.split('-q ')[1]
+    if not yt_downloader.is_valid_url(url): 
+        await message.channel.send("URL is not valid YT video")
+        return
+    
     if len(client.voice_clients) == 0: 
         message.content = f"-play {url}"
         await parse_YT(message)
