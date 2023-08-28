@@ -42,6 +42,3 @@ def download_youtube_audio(url, output_path="sounds"):
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-
-# Example usage:
-# mp3_file = download_youtube_audio("YOUR_YOUTUBE_URL")

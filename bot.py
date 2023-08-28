@@ -2,7 +2,7 @@ import discord
 import json
 import asyncio
 import yt_downloader
-from discord.ext import commands, tasks
+from discord.ext import tasks
 
 with open("creds.json") as f:
     creds = json.load(f)
@@ -87,7 +87,7 @@ async def add_song_to_queue(message):
     queue.append(url)
     await message.channel.send(str(queue))
 
-@tasks.loop(seconds=1)  # Set the interval to check every 10 seconds
+@tasks.loop(seconds=1)  # Set the interval to check every 1 seconds
 async def check_queue():
     
     if await check_audio_playing(): return
@@ -116,10 +116,6 @@ async def check_audio_playing():
 
     return False
 
-@check_queue.before_loop
-async def before_check_queue():
-    await client.wait_until_ready()
-
 commands = {
     '-help':{
         'desc': "Lister kommandoer",
@@ -143,6 +139,11 @@ commands = {
     }
 }
 
+
+@client.event
+async def on_ready():
+    check_queue.start()
+
 @client.event
 async def on_message(message: discord.Message): 
     if message.author == client.user:
@@ -152,10 +153,5 @@ async def on_message(message: discord.Message):
         excecuted_command = message.content.split(" ")[0]
         await commands[excecuted_command]['func'](message)
         return
-check_queue.start()
-client.run(TOKEN)
 
-
-
-
-
+client.run(TOKEN, log_handler=None)
