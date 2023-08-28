@@ -67,11 +67,10 @@ async def parse_YT(message):
     
     if await check_audio_playing():
         client.voice_clients[0].stop()
-    
+        await asyncio.sleep(2)
     
     await play_YT(url, message=message)
    
-
 async def play_YT(url, message=None):
     song_path = yt_downloader.download_youtube_audio(url)
     
@@ -92,6 +91,7 @@ async def add_song_to_queue(message):
         message.content = f"-play {url}"
         await parse_YT(message)
         return
+    
     queue.append(url)
     await send_queue(message)
 
@@ -136,10 +136,13 @@ async def check_queue():
         await asyncio.sleep(3)
         if await check_audio_playing() : return
 
-        await play_YT(queue.pop(0))
+        await play_next_in_q()
         
 async def play_next_in_q(message=None):
-    if await check_audio_playing() : client.voice_clients[0].stop()
+    if await check_audio_playing() :
+        client.voice_clients[0].stop()
+        await asyncio.sleep(2)
+    
     if len(queue) > 0:
         await play_YT(queue.pop(0))
 
