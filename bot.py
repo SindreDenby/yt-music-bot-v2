@@ -18,25 +18,6 @@ client = discord.Client(intents=discord.Intents.all())
 
 queue = []
 
-def get_stalks() -> dict:
-    """
-    Returns all stalks from stalks.json file
-    """
-    with open("stalks.json") as f:
-        return json.load(f)
-
-def save_stalks(stalks: dict):
-    """
-    Saves dict in stalks.json
-    """
-    with open("stalks.json", "w+") as f:
-        f.write(json.dumps(stalks, indent=2))
-
-def get_available_sounds() -> list:
-    """
-    Returns a list of all files in sounds directory
-    """
-    return [i.split('.')[0] for i in os.listdir("sounds")]
 
 async def send_help(message: discord.Message):
     """
@@ -56,82 +37,6 @@ async def stop_bot_play(message: discord.Message):
     queue = []
     for voide_clients in client.voice_clients:
         await voide_clients.disconnect(force=True)
-
-async def list_stalks(message: discord.Message):
-    """
-    Lists all stalks to channel
-    """
-    stalks = get_stalks()
-    stalks_string= "**Stalks:** \n"
-    for userId in stalks:
-        username = client.get_user(int(userId)).name
-        
-        stalks_string += f"`{username}` stalked by `{stalks[userId]}`\n"
-
-    await message.channel.send(stalks_string)
-
-async def add_stalk_to_user(message: discord.Message):
-    """
-    Adds a sound to stalk user
-    """
-    if len(message.content.split(" ")) != 3: 
-        await message.channel.send("Bruk: `-stalk @brukernavn lydnavn`")
-        return
-
-    sound_name = message.content.split(" ")[2].lower()
-
-    if sound_name not in get_available_sounds():
-        await message.channel.send(f"lyden: `{sound_name}` eksisterer ikke")
-        return
-    
-    user_id = message.content.split(" ")[1].split("@")[1].split(">")[0]
-    username = client.get_user(int(user_id)).name
-
-    stalks = get_stalks()
-
-    stalks[user_id] = sound_name
-
-    save_stalks(stalks)
-
-    await message.channel.send(f"`{username}` blir nå stalket av `{sound_name}`")
-
-async def add_new_sound(message: discord.Message):
-    """
-    Downloads a new sound from link in message
-    """
-    if len(message.content.split(" ")) != 3: 
-        await message.channel.send("Bruk: `-newsound link.til/sang.mp3 sangnavn`")
-        return
-
-    soundUrl = message.content.split(" ")[1]
-    newSound = requests.get(soundUrl)
-    newSoundName = 'sounds/' + message.content.split(" ")[2] + ".mp3"
-
-    with open(newSoundName.lower(), 'wb') as f:
-        f.write(newSound.content)
-
-    formated_name = newSoundName.split('/')[1].split(".")[0]
-    await message.channel.send(f"New sound added: `{formated_name}`")
-    print(f"New sound added: {newSoundName}")
-
-async def list_available_sounds(message: discord.Message):
-    """
-    Sends a list with available sounds in message channel of message origin
-    """
-    sounds = get_available_sounds()
-    sounds_string= "**Sounds:** \n"
-    for sound in sounds:
-        sound_length = MP3(f'sounds/{sound}.mp3').info.length
-        min_sec = str(datetime.timedelta(seconds=sound_length)).split(':')[1:3]
-
-        minutes = min_sec[0]
-
-        seconds = str(math.ceil(float(min_sec[1]))).split(".")[0]
-        seconds = seconds if len(seconds) > 1 else f'0{seconds}'
-
-        sounds_string += f"`{sound}` {minutes}:{seconds}\n"
-
-    await message.channel.send(sounds_string)
   
 async def play_audio(message: discord.Message, filename: str, channel = None, voice_client = None):
     """
