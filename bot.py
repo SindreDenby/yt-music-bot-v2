@@ -63,8 +63,7 @@ async def play_audio(message: discord.Message, filename: str, channel = None, vo
 async def parse_YT(message):
     
     if await check_audio_playing():
-        await message.channel.send("Bot spiller sang allerede, bruk `-q`")
-        return
+        client.voice_clients[0].stop()
     
     url = message.content.split("-play ")[1]
     await play_YT(url, message=message)
@@ -160,7 +159,7 @@ commands = {
         'func': play_next_in_q
     },
     '-list': {
-        'desc': "Viser liste av q'et sanger",
+        'desc': "Viser liste av queuedede sanger",
         'func': send_queue
     }
 }
