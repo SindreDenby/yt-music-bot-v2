@@ -139,7 +139,6 @@ commands = {
     }
 }
 
-
 @client.event
 async def on_ready():
     check_queue.start()
@@ -154,4 +153,4 @@ async def on_message(message: discord.Message):
         await commands[excecuted_command]['func'](message)
         return
 
-client.run(TOKEN, log_handler=None)
+client.run(TOKEN)
