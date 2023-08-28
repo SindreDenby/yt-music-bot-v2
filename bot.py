@@ -63,11 +63,8 @@ async def play_audio(message: discord.Message, filename: str, channel = None, vo
 async def parse_YT(message):
     url = message.content.split("-play ")[1]
 
-    if not yt_downloader.is_valid_url(url): 
-        await message.channel.send("URL is not valid YT video")
-        return
+    if await url_validator(url, message): return
     
-
     if await check_audio_playing():
         client.voice_clients[0].stop()
     
@@ -88,9 +85,8 @@ async def add_song_to_queue(message):
     global queue
 
     url = message.content.split('-q ')[1]
-    if not yt_downloader.is_valid_url(url): 
-        await message.channel.send("URL is not valid YT video")
-        return
+    
+    if await url_validator(url, message): return
     
     if len(client.voice_clients) == 0: 
         message.content = f"-play {url}"
@@ -99,6 +95,16 @@ async def add_song_to_queue(message):
     queue.append(url)
     await send_queue(message)
 
+async def url_validator(url, message=None):
+    """
+    Returns true if URL is invalid yt link
+    """
+    if yt_downloader.is_valid_url(url): return False
+
+    if message != None:
+        await message.channel.send("***URL is not valid YT video***")
+    return True
+    
 def beatify_q(queue):
     titles = yt_downloader.get_list_of_titles(queue)
 
