@@ -10,6 +10,19 @@ def clean_file_name(file_name):
     cleaned_file_name = re.sub(invalid_chars, '', file_name)
 
     return cleaned_file_name
+
+def get_url_title(url):
+    try:
+        yt = YouTube(url)
+
+        return yt.title
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+def get_list_of_titles(url_list):
+    return [get_url_title(i) for i in url_list]
+
 def download_youtube_audio(url, output_path="sounds"):
     try:
         # Create a YouTube object

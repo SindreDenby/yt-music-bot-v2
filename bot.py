@@ -54,6 +54,9 @@ async def play_audio(message: discord.Message, filename: str, channel = None, vo
 
     sound_source = discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename)
     voice_client.play(sound_source)
+    song_name = filename.split("sounds\\")[1].split(".")[0]
+    activity = discord.Game(name=f"Listening to: {song_name}")
+    await client.change_presence(status=discord.Status.online, activity=activity)
     # await asyncio.sleep(soundTime)
     # await voice_client.disconnect()
 
@@ -85,7 +88,23 @@ async def add_song_to_queue(message):
         await parse_YT(message)
         return
     queue.append(url)
-    await message.channel.send(str(queue))
+    await send_queue(message)
+
+def beatify_q(queue):
+    titles = yt_downloader.get_list_of_titles(queue)
+
+    return_string = '***Queue:***\n'
+
+    for i, title in enumerate(titles):
+        return_string += f"  ***{i + 1}*** : `{title}`\n"
+    
+    return return_string
+
+async def send_queue(message):
+    if len(queue) == 0:
+        await message.channel.send("***Queue is empty***")
+        return 
+    await message.channel.send(beatify_q(queue))
 
 @tasks.loop(seconds=1)  # Set the interval to check every 1 seconds
 async def check_queue():
@@ -104,10 +123,13 @@ async def check_queue():
 
         await play_YT(queue.pop(0))
         
-async def play_next_in_q(_=None):
+async def play_next_in_q(message=None):
     if await check_audio_playing() : client.voice_clients[0].stop()
     if len(queue) > 0:
         await play_YT(queue.pop(0))
+
+    if message == None: return
+    await send_queue(message)
 
 async def check_audio_playing():
     for voice_client in client.voice_clients:
@@ -136,6 +158,10 @@ commands = {
     '-skip': {
         'desc': 'Skipper en sang',
         'func': play_next_in_q
+    },
+    '-list': {
+        'desc': "Viser liste av q'et sanger",
+        'func': send_queue
     }
 }
 
