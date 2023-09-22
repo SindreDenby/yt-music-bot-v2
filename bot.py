@@ -117,7 +117,7 @@ def beatify_q(queue):
     
     return return_string
 
-async def send_queue(message):
+async def send_queue(message: discord.message):
     if len(queue) == 0:
         await message.channel.send("***Queue is empty***")
         return 
