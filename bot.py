@@ -12,6 +12,7 @@ TOKEN = creds['token']
 client = discord.Client(intents=discord.Intents.all())
 
 queue = []
+loop = ""
 
 
 async def send_help(message: discord.Message):
@@ -28,8 +29,9 @@ async def stop_bot_play(message: discord.Message):
     """
     Disconnects the bot from its channel
     """
-    global queue
+    global queue, loop
     queue = []
+    loop = ""
     for voide_clients in client.voice_clients:
         await voide_clients.disconnect(force=True)
   
@@ -129,6 +131,9 @@ async def check_queue():
     # Only plays if bot is connected to channel already
     if len(client.voice_clients) == 0: return
 
+    if loop != "":
+        await play_YT(loop)
+        return
     # Checks if there are songs in q
     if len(queue) > 0:
         
@@ -148,6 +153,24 @@ async def play_next_in_q(message=None):
 
     if message == None: return
     await send_queue(message)
+
+async def set_loop(message=None):
+    global loop
+    if type(message) == str: 
+        loop = message
+        return
+    
+    url = message.content.split("-loop ")[1]
+    
+    await play_YT(url, message)
+    loop = url
+
+async def stop_loop(message=None):
+    global loop
+    loop = ""
+    if message == None: return
+
+    message.channel.send("Stopped loop")
 
 async def check_audio_playing():
     for voice_client in client.voice_clients:
@@ -176,6 +199,10 @@ commands = {
     '-skip': {
         'desc': 'Skipper en sang',
         'func': play_next_in_q
+    },
+    '-loop': {
+        'desc': 'Looper spesifisert sang',
+        'func': set_loop
     },
     '-list': {
         'desc': "Viser liste av queuedede sanger",
