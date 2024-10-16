@@ -84,7 +84,6 @@ async def play_YT(url, message=None):
 
 async def add_song_to_queue(message):
     global queue
-
     url = message.content.split('-q ')[1]
     
     if await url_validator(url, message): return

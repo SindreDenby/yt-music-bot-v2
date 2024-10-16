@@ -37,7 +37,7 @@ def is_valid_url(url):
         print(f"An error occurred: {str(e)}")
 
 
-def download_youtube_audio(url, output_path="sounds"):
+def download_youtube_audio(url: str, output_path="sounds"):
     try:
         # Create a YouTube object
         yt = YouTube(url)
